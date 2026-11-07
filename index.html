@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>乒乓球动作分析 Demo</title>
+  <link rel="stylesheet" href="./styles/main.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "@mediapipe/tasks-vision": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm"
+      }
+    }
+  </script>
+</head>
+<body>
+  <header>
+    <h1>乒乓球动作分析 Demo</h1>
+    <p class="subtitle">本地姿态估计验证 · 视频不会上传</p>
+  </header>
+
+  <main>
+    <!-- 1. 上传区 -->
+    <section class="card">
+      <h2>1. 选择视频</h2>
+      <label class="file-btn">
+        选择本地视频文件
+        <input type="file" id="video-input" accept="video/*">
+      </label>
+      <div id="video-meta" class="meta"></div>
+    </section>
+
+    <!-- 2. 播放区 -->
+    <section class="card" id="player-section" hidden>
+      <h2>2. 骨架回放</h2>
+      <div class="stage">
+        <video id="video" playsinline></video>
+        <canvas id="overlay"></canvas>
+      </div>
+      <div class="controls">
+        <button id="btn-play" class="btn">播放</button>
+        <button id="btn-prev" class="btn">‹ 上一帧</button>
+        <button id="btn-next" class="btn">下一帧 ›</button>
+        <input type="range" id="seek" min="0" max="0" step="1" value="0" disabled>
+        <span id="frame-label" class="meta"></span>
+      </div>
+    </section>
+
+    <!-- 3. 状态区 -->
+    <section class="card" id="status-section" hidden>
+      <h2>3. 分析与质量评估</h2>
+      <div class="analyze-row">
+        <label class="meta">抽帧率
+          <select id="fps-select">
+            <option value="30" selected>30 fps</option>
+            <option value="60">60 fps</option>
+          </select>
+        </label>
+        <button id="btn-analyze" class="btn primary">开始分析</button>
+      </div>
+      <progress id="progress" value="0" max="1"></progress>
+      <div id="progress-text" class="meta"></div>
+      <div id="quality-report"></div>
+    </section>
+
+    <!-- 4. 操作区 -->
+    <section class="card" id="export-section" hidden>
+      <h2>4. 导出数据</h2>
+      <button id="btn-export" class="btn">导出关键点 JSON</button>
+      <p class="meta">格式与将来上传服务器的数据一致</p>
+    </section>
+  </main>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
