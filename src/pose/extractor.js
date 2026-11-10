@@ -14,6 +14,7 @@ export async function extractKeypoints(video, detector, { fps = 30, onProgress }
   for (let i = 0; i <= total; i++) {
     const t = Math.min(i / fps, duration - 0.001);
     await seekTo(video, t);
+    await settleFrame(); // 等待新帧真正上屏，否则推理会拿到上一帧（骨架延迟的成因）
 
     const result = detector.detect(video, Math.round(t * 1000));
     const pose = result.landmarks && result.landmarks.length > 0 ? result.landmarks[0] : null;
@@ -29,6 +30,16 @@ export async function extractKeypoints(video, detector, { fps = 30, onProgress }
   }
 
   return frames;
+}
+
+/**
+ * seeked 事件只保证帧解码完成，不保证已合成上屏；
+ * 双 rAF 等到浏览器完成一次绘制，确保 detector 读到的是目标帧
+ */
+function settleFrame() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+  });
 }
 
 function seekTo(video, time) {

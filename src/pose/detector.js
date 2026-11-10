@@ -18,10 +18,16 @@ export async function createDetector(config) {
     landmarker = await PoseLandmarker.createFromOptions(vision, options('CPU'));
   }
 
+  // VIDEO 模式要求时间戳严格递增且跨调用持续有效；
+  // 换视频/重复分析时业务侧 t 从 0 重新开始，这里兜底强制单调
+  let lastTimestamp = -1;
+
   return {
-    /** 对 video 当前画面推理，timestampMs 必须单调递增 */
+    /** 对 video 当前画面推理，timestampMs 会被强制修正为单调递增 */
     detect(video, timestampMs) {
-      return landmarker.detectForVideo(video, timestampMs);
+      const ts = Math.max(timestampMs, lastTimestamp + 1);
+      lastTimestamp = ts;
+      return landmarker.detectForVideo(video, ts);
     },
     close() { landmarker.close(); },
   };
